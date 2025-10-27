@@ -1,0 +1,9 @@
+// Register a new user
+POST http://e-hafidz.test/api/simpan-hafalan
+content-type: application/json
+
+{
+  "display_name": "Zaky Jamaluddin",
+  "email": "zakyjamaluddin1812@gmail.com",
+  "password": "12345678"
+}

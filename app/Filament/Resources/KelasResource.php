@@ -70,6 +70,7 @@ class KelasResource extends Resource
                     ->searchable(),
                 TextColumn::make('targetHafalan.nama')
                     ->label('Target'),
+               
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

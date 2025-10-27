@@ -74,7 +74,9 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('kelas.kelas')
                     ->label('Kelas')
                     ->formatStateUsing(fn ($record) => $record->kelas->pluck('kelas')->join(', '))
-                    ->wrap(),
+                    ->wrap()
+                    ->prefix('Kelas ')
+                    ->description(fn (User $record): string => $record->tenant()->first()->nama ?? 'Tidak ada tenant'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

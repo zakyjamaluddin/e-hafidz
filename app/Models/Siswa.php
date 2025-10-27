@@ -14,7 +14,7 @@ class Siswa extends Model
 
     public function hafalan()
     {
-        return $this->hasMany(Hafalan::class);
+        return $this->hasMany(Hafalan::class)->latest('created_at');
     }
     // return $this->hasOne(Hafalan::class)->latestOfMany('created_at');
 

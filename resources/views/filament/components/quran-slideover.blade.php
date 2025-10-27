@@ -1,71 +1,119 @@
-@once
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/custom-font.css') }}">
-    @endpush
-@endonce
-
-
 <div 
     x-data="{
+        juz: {{ $juz ?? 1 }},
         page: {{ $page ?? 1 }},
-        juz: {{ $juz ?? 1 }}, // ← tambahkan ini
+        allHalaman: @js($halaman),
         ayahs: @js($ayahs),
         loading: false,
+
+        // form data
+        nilai: '',
+
+        get filteredHalaman() {
+            return this.allHalaman.filter(h => h.juz === this.juz);
+        },
+
         async fetchAyat() {
             this.loading = true;
             try {
-                let url = '';
-                if (this.juz === 30) {
-                    // Contoh: Tampilkan surah terakhir (An-Nas)
-                    url = `https://api.alquran.cloud/v1/surah//${this.page}`;
-                } else {
-                    url = `https://api.alquran.cloud/v1/page/${this.page}/quran-uthmani`;
-                }
+                let url = this.juz === 30
+                    ? `https://api.alquran.cloud/v1/surah//${this.page}`
+                    : `https://api.alquran.cloud/v1/page/${this.page}/quran-uthmani`;
 
                 const res = await fetch(url);
                 const data = await res.json();
-
-                // Jika API surah, ambil `data.ayahs`, bukan `data.data.ayahs`
-                this.ayahs = this.juz === 30 ? data.data.ayahs : data.data.ayahs;
+                this.ayahs = data.data.ayahs;
             } catch (e) {
                 this.ayahs = [];
             } finally {
                 this.loading = false;
             }
         },
+
         arabicNumber(number) {
             const western = ['0','1','2','3','4','5','6','7','8','9'];
             const eastern = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
             return String(number).split('').map(d => eastern[western.indexOf(d)]).join('');
+        },
+
+        async submitNilai() {
+            try {
+                const res = await fetch('/api/simpan-hafalan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        page: this.page,
+                        juz: this.juz,
+                        nilai: this.nilai
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    
+                    alert(data.message || 'Nilai berhasil disimpan!');
+                    
+                } else {
+                    alert(data.message || 'Terjadi kesalahan!');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Terjadi kesalahan saat menyimpan nilai.');
+            }
         }
-
-
-
     }"
     x-init="
-        // Dengarkan event dari Select Filament
         window.addEventListener('halaman-changed', e => {
             page = e.detail.page;
-            juz  = e.detail.juz;
+            juz = e.detail.juz;
             fetchAyat();
         });
     "
     class="p-4 space-y-4 text-right"
-    dir="rtl"
+    x-data="{ open: true }"
 >
+    <div class="flex gap-4" dir="ltr">
+        {{-- Select Juz --}}
+        <div class="w-1/2">
+            <label for="juz-select" class="block text-sm font-medium text-gray-700 mb-1">Juz</label>
+            <select id="juz-select"
+                x-model.number="juz"
+                @change="
+                    page = 1;
+                    fetchAyat();
+                    window.dispatchEvent(new CustomEvent('halaman-changed', { detail: { juz, page } }));
+                "
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm sm:text-sm"
+            >
+                <template x-for="j in [...new Set(allHalaman.map(h => h.juz))]" :key="j">
+                    <option :value="j" x-text="'Juz ' + j"></option>
+                </template>
+            </select>
+        </div>
 
-    @php
-    if (!function_exists('arabic_number')) {
-        function arabic_number($number)
-        {
-            $western = ['0','1','2','3','4','5','6','7','8','9'];
-            $eastern = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-            return str_replace($western, $eastern, $number);
-        }
-    }
-    @endphp
-    <!-- Tampilkan Ayat -->
-    <div class="text-2xl leading-loose text-justify min-h-[300px]" style="font-family: 'Arabic'">
+        {{-- Select Halaman --}}
+        <div class="w-1/2">
+            <label for="halaman-select" class="block text-sm font-medium text-gray-700 mb-1">Halaman</label>
+            <select id="halaman-select"
+                x-model.number="page"
+                @change="
+                    fetchAyat();
+                    window.dispatchEvent(new CustomEvent('halaman-changed', { detail: { juz, page } }));
+                "
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm sm:text-sm"
+            >
+                <template x-for="h in filteredHalaman" :key="h.nomor">
+                    <option :value="h.nomor" x-text='h.nomor + " - " + h.nama'></option>
+                </template>
+            </select>
+        </div>
+    </div>
+
+    {{-- Area Ayat --}}
+    <div class="text-2xl leading-loose text-justify min-h-[300px]" style="font-family: 'Arabic'" dir="rtl">
         <template x-if="ayahs.length > 0">
             <div>
                 <template x-for="ayah in ayahs" :key="ayah.number">
@@ -78,38 +126,47 @@
                 </template>
             </div>
         </template>
-
         <template x-if="ayahs.length === 0">
             <p class="text-center text-gray-500">Gagal memuat ayat.</p>
         </template>
     </div>
 
-    <!-- Loading -->
+    {{-- Loading --}}
     <div x-show="loading" class="text-center text-gray-500">Memuat halaman...</div>
 
-    <!-- Tombol Navigasi -->
+    {{-- Navigasi halaman --}}
     <div class="flex justify-between mt-6">
         <x-filament::button
-        color="gray"
-        tag="button"
-        size="sm"
-        x-bind:disabled="page <= 1"
-        x-on:click.prevent.stop="page--; fetchAyat()"
-    >
-        Halaman Sebelumnya
-    </x-filament::button>
+            color="gray"
+            tag="button"
+            size="sm"
+            x-bind:disabled="page <= 1"
+            x-on:click.prevent.stop="page--; fetchAyat()"
+        >
+            Halaman Sebelumnya
+        </x-filament::button>
 
-    <x-filament::button
-        color="gray"
-        tag="button"
-        size="sm"
-        x-on:click.prevent.stop="page++; fetchAyat()"
-    >
-        Halaman Berikutnya
-    </x-filament::button>
-
+        <x-filament::button
+            color="gray"
+            tag="button"
+            size="sm"
+            x-on:click.prevent.stop="page++; fetchAyat()"
+        >
+            Halaman Berikutnya
+        </x-filament::button>
     </div>
-    <br>
-    <hr>
 
+    {{-- Form Nilai --}}
+    <div class="mt-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Masukkan Nilai</label>
+        <input type="number" x-model="nilai" placeholder="Nilai hafalan" class="border p-2 rounded w-full mb-2">
+        <x-filament::button
+            color="primary"
+            size="sm"
+            tag="button"
+            x-on:click.prevent="submitNilai()"
+        >
+            Simpan Nilai
+        </x-filament::button>
+    </div>
 </div>

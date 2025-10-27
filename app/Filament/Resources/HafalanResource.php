@@ -6,7 +6,6 @@ use App\Filament\Pages\DetailHafalanSiswa;
 use App\Filament\Resources\HafalanResource\Pages;
 use App\Filament\Resources\HafalanResource\Pages\ViewHafalan;
 use App\Filament\Resources\HafalanResource\RelationManagers;
-use App\Livewire\SimakHafalan;
 use App\Models\Hafalan;
 use App\Models\Halaman;
 use App\Models\Siswa;
@@ -100,11 +99,30 @@ class HafalanResource extends Resource
                 Tables\Columns\TextColumn::make('hafalan.0.halaman.nama')
                     ->label('Halaman')
                     ->limit(10)
-                    ->description(fn (Siswa $record): ?string => $record->hafalan->first()?->selanjutnya ?? null)
+                    ->description(fn (Siswa $record): ?string => 'Juz ' . $record->hafalan->first()?->halaman->juz ?? null)
                     ->default('-')
+                    // saya ingin, color ini mengacu pada $record->hafalan->first()?->selanjutnya. jika 'mengulang', maka warna merah, jika 'melanjutkan', maka warna hijau
+                    ->color(fn (Siswa $record) => $record->hafalan->first()?->selanjutnya === 'melanjutkan' ? 'success' : ($record->hafalan->first()?->selanjutnya === 'mengulang' ? 'danger' : null)),
             ])
             ->emptyStateHeading('Belum ada data hafalan')
             ->actions([
+
+                // Action::make('simak')
+                //     ->label('Simak Hafalan')
+                //     ->icon('heroicon-o-musical-note')
+                //     ->button()
+                //     ->color('success')
+                //     ->url(fn ($record) => static::getUrl('simak-hafalan', ['record' => $record]))
+                //     ->openUrlInNewTab(false),
+
+                Action::make('simakHafalan')
+                    ->label('Simak')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (Siswa $record): string => Pages\SimakHafalan::getUrl(['record' => $record])) // Arahkan ke Custom Page
+                    ->openUrlInNewTab(false),
+
+
+
                 Action::make('lihatInfo')
                     ->label('Simak')
                     ->icon('heroicon-o-eye')
@@ -237,6 +255,7 @@ class HafalanResource extends Resource
                                         'ayahs' => $data,
                                         'page' => $number,
                                         'juz' => $record->hafalan[0]->halaman->juz,
+                                        'halaman' => Halaman::all(),
                                     ]);
                                 }
 
@@ -255,6 +274,7 @@ class HafalanResource extends Resource
                                         'ayahs' => $data,
                                         'page' => $page,
                                         'juz' => $record->hafalan[0]->halaman->juz,
+                                        'halaman' => Halaman::all(),
                                     ]);
                                 }
                             }
@@ -294,6 +314,8 @@ class HafalanResource extends Resource
             'create' => Pages\CreateHafalan::route('/create'),
             'edit' => Pages\EditHafalan::route('/{record}/edit'),
             'detail-hafalan-siswa' => Pages\ViewHafalan::route('/siswa/{record}'),
+
+            'simak-hafalan' => Pages\SimakHafalan::route('/simak/{record}'),
         ];
     }
 }

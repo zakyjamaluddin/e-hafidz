@@ -20,6 +20,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Navigation\NavigationItem;
+use Filament\Support\Facades\FilamentView;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -55,12 +57,57 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->navigationItems([
+                NavigationItem::make('Petunjuk Aplikasi')
+                    ->url('https://docs.google.com/document/d/1PCX9Df6FxRsc1FdUY_1TqJZDxnZVsjjbjNfhyhEIWE8/edit?tab=t.0#heading=h.rmh5y2mdesur', shouldOpenInNewTab: true)
+                    ->icon('heroicon-o-question-mark-circle')
+                    ->group('Dokumentasi'),
+            ])
             ->authMiddleware([
                 Authenticate::class,
-            ])
-            ->plugins([
             ]);
     }
+
+
+
+
+    public function boot(): void
+    {
+        // 🔹 Bagian HEAD (manifest, meta, dsb.)
+        FilamentView::registerRenderHook(
+            'panels::head.end',
+            fn (): string => <<<'HTML'
+                <meta name="theme-color" content="#6777ef"/>
+                <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+                <link rel="manifest" href="{{ asset('/manifest.json') }}">
+            HTML,
+        );
+
+        // 🔹 Bagian sebelum </body> (register service worker)
+        FilamentView::registerRenderHook(
+            'panels::body.end',
+            fn (): string => <<<'HTML'
+                <script src="{{ asset('/sw.js') }}"></script>
+                <script>
+                if ("serviceWorker" in navigator) {
+                    // Register a service worker hosted at the root of the
+                    // site using the default scope.
+                    navigator.serviceWorker.register("/sw.js").then(
+                    (registration) => {
+                        console.log("Service worker registration succeeded:", registration);
+                    },
+                    (error) => {
+                        console.error(`Service worker registration failed: ${error}`);
+                    },
+                    );
+                } else {
+                    console.error("Service workers are not supported.");
+                }
+                </script>
+            HTML,
+        );
+    }
+
 
 
 }
