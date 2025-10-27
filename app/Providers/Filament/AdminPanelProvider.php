@@ -97,7 +97,7 @@ class AdminPanelProvider extends PanelProvider
                         console.log("Service worker registration succeeded:", registration);
                     },
                     (error) => {
-                        console.error(`Service worker registration failed: ${error}`);
+                        console.error(`Service worker registration failed hehehe: ${error}`);
                     },
                     );
                 } else {

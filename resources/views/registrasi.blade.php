@@ -9,6 +9,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
     <title>Registrasi | E-Hafidz</title>
+
+    <!-- PWA  -->
+    <meta name="theme-color" content="#6777ef"/>
+    <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+    <link rel="manifest" href="{{ asset('/manifest.json') }}">
   </head>
   <body>
     <div class="row mt-5">
@@ -55,6 +60,10 @@
             <input type="password" class="form-control" name="password_confirmation">
           </div>
           <button type="submit" class="btn btn-success float-end">Daftar</button>
+          <!-- Add this inside <body> -->
+          <button id="pwa-install-btn" style="display:none; position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 8px; z-index: 1000;">
+            Install App
+          </button>
         </form>
       </div>
     </div>
@@ -70,5 +79,24 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
     -->
+
+    <script src="{{ asset('/sw.js') }}"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+          // Register a service worker hosted at the root of the
+          // site using the default scope.
+          navigator.serviceWorker.register("/sw.js").then(
+          (registration) => {
+            console.log("Service worker registration succeeded:", registration);
+          },
+          (error) => {
+            console.error(`Service worker registration failed: ${error}`);
+          },
+        );
+      } else {
+        console.error("Service workers are not supported.");
+      }
+    </script>
+     <script src="{{ asset('pwa-install.js') }}"></script>
   </body>
 </html>
