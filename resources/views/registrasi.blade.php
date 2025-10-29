@@ -21,7 +21,7 @@
       <div class="col-md-6 col-10">
         <div class="text-center">
           <h3>Form Registrasi</h3>
-          <p class="text-muted">Pastikan anda memasukkan data yang valid</p>
+          <p class="text-muted">Pastikan anda menginstall aplikasi dulu sebelum registrasi</p>
         </div>
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -36,7 +36,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
-
+          <button id="pwa-install-btn" class="btn btn-success mb-3 w-100">
+            Install Aplikasi
+          </button>
         <form action="/F8hLp7wQzK9A" method="POST">
           @csrf
           <div class="mb-3">
@@ -59,11 +61,9 @@
             <label for="exampleInputPassword1" class="form-label">Konfirmasi Password</label>
             <input type="password" class="form-control" name="password_confirmation">
           </div>
-          <button type="submit" class="btn btn-success float-end">Daftar</button>
+          <button type="submit" class="btn btn-success float-end mb-5">Daftar</button>
           <!-- Add this inside <body> -->
-          <button id="pwa-install-btn" style="display:none; position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 8px; z-index: 1000;">
-            Install App
-          </button>
+          
         </form>
       </div>
     </div>
