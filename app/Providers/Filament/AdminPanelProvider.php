@@ -79,7 +79,7 @@ class AdminPanelProvider extends PanelProvider
         FilamentView::registerRenderHook(
             'panels::head.end',
             fn (): string => <<<'HTML'
-                <meta name="theme-color" content="#6777ef"/>
+                <meta name="theme-color" content="#ffffffff" id="theme-color-meta"/>
                 <link rel="apple-touch-icon" href="logo.png">
                 <link rel="manifest" href="/manifest.json">
             HTML,
@@ -106,6 +106,40 @@ class AdminPanelProvider extends PanelProvider
                     console.error("Service workers are not supported.");
                 }
                 </script>
+                <script>
+                    const metaThemeColor = document.getElementById('theme-color-meta');
+
+                    function updateThemeColor() {
+                        if (!metaThemeColor) return;
+
+                        const isDark = document.documentElement.classList.contains('dark');
+
+                        if (isDark) {
+                            metaThemeColor.setAttribute('content', '#000000'); // hitam untuk dark mode
+                        } else {
+                            metaThemeColor.setAttribute('content', '#ffffff'); // putih untuk light mode
+                        }
+                    }
+
+                    // Jalankan saat load
+                    updateThemeColor();
+
+                    // Jalankan saat user toggle tema di Filament
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const toggleButton = document.querySelector('[data-toggle-theme]');
+                        if (toggleButton) {
+                            toggleButton.addEventListener('click', () => {
+                                // delay sebentar supaya class dark sudah diterapkan
+                                setTimeout(updateThemeColor, 50);
+                            });
+                        }
+                    });
+
+                    // Optional: observasi perubahan class dark untuk lebih robust
+                    const observer = new MutationObserver(updateThemeColor);
+                    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+                </script>
+
             HTML,
         );
     }
