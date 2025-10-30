@@ -91,20 +91,20 @@ class AdminPanelProvider extends PanelProvider
             fn (): string => <<<'HTML'
                 <script src="/sw.js"></script>
                 <script>
-                if ("serviceWorker" in navigator) {
-                    // Register a service worker hosted at the root of the
-                    // site using the default scope.
-                    navigator.serviceWorker.register("/sw.js").then(
-                    (registration) => {
-                        console.log("Service worker registration succeeded:", registration);
-                    },
-                    (error) => {
-                        console.error(`Service worker registration failed hehehe: ${error}`);
-                    },
-                    );
-                } else {
-                    console.error("Service workers are not supported.");
-                }
+                    if ("serviceWorker" in navigator) {
+                        // Register a service worker hosted at the root of the
+                        // site using the default scope.
+                        navigator.serviceWorker.register("/sw.js").then(
+                        (registration) => {
+                            console.log("Service worker registration succeeded:", registration);
+                        },
+                        (error) => {
+                            console.error(`Service worker registration failed hehehe: ${error}`);
+                        },
+                        );
+                    } else {
+                        console.error("Service workers are not supported.");
+                    }
                 </script>
                 <script>
                     const metaThemeColor = document.getElementById('theme-color-meta');
@@ -139,6 +139,7 @@ class AdminPanelProvider extends PanelProvider
                     const observer = new MutationObserver(updateThemeColor);
                     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
                 </script>
+                 <script src="pwa-install.js"></script>
 
             HTML,
         );
