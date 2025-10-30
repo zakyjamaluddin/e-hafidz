@@ -115,7 +115,7 @@ class AdminPanelProvider extends PanelProvider
                         const isDark = document.documentElement.classList.contains('dark');
 
                         if (isDark) {
-                            metaThemeColor.setAttribute('content', '#000000'); // hitam untuk dark mode
+                            metaThemeColor.setAttribute('content', '#18181b'); // hitam untuk dark mode
                         } else {
                             metaThemeColor.setAttribute('content', '#ffffff'); // putih untuk light mode
                         }
