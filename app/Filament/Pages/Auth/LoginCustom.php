@@ -2,10 +2,11 @@
 
 namespace App\Filament\Pages\Auth;
 
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Pages\Auth\Login;
 use Filament\Pages\Page;
+use Filament\Pages\Auth\Login;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\TextInput;
 
 class LoginCustom extends Login
 {
@@ -26,6 +27,9 @@ class LoginCustom extends Login
                     ->label('Kata Sandi')
                     ->password()
                     ->required(),
+                Checkbox::make('remember')
+                    ->label('Ingat saya')
+                    ->default(true),
             ]);
     }
 }

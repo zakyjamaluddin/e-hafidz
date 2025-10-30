@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Facades\Filament;
+use Filament\Http\Livewire\Auth\Login;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -32,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(LoginCustom::class)
             ->colors([
                 'primary' => Color::Green,
             ])
@@ -79,8 +80,8 @@ class AdminPanelProvider extends PanelProvider
             'panels::head.end',
             fn (): string => <<<'HTML'
                 <meta name="theme-color" content="#6777ef"/>
-                <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
-                <link rel="manifest" href="{{ asset('/manifest.json') }}">
+                <link rel="apple-touch-icon" href="logo.png">
+                <link rel="manifest" href="/manifest.json">
             HTML,
         );
 
@@ -88,7 +89,7 @@ class AdminPanelProvider extends PanelProvider
         FilamentView::registerRenderHook(
             'panels::body.end',
             fn (): string => <<<'HTML'
-                <script src="{{ asset('/sw.js') }}"></script>
+                <script src="/sw.js"></script>
                 <script>
                 if ("serviceWorker" in navigator) {
                     // Register a service worker hosted at the root of the
