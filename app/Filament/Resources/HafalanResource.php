@@ -123,177 +123,177 @@ class HafalanResource extends Resource
 
 
 
-                Action::make('lihatInfo')
-                    ->label('Simak')
-                    ->icon('heroicon-o-eye')
-                    ->slideOver() 
-                    ->modalHeading(fn ($record) => $record->nama)
-                    ->modalDescription(fn ($record) => 'Kelas ' . $record->kelas->kelas)
-                    ->modalSubmitActionLabel('Simpan Hafalan') // Tidak butuh tombol "Simpan"
-                    ->modalCancelActionLabel('Tutup')
-                    ->form( fn ($record) =>[
+                // Action::make('lihatInfo')
+                //     ->label('Simak')
+                //     ->icon('heroicon-o-eye')
+                //     ->slideOver() 
+                //     ->modalHeading(fn ($record) => $record->nama)
+                //     ->modalDescription(fn ($record) => 'Kelas ' . $record->kelas->kelas)
+                //     ->modalSubmitActionLabel('Simpan Hafalan') // Tidak butuh tombol "Simpan"
+                //     ->modalCancelActionLabel('Tutup')
+                //     ->form( fn ($record) =>[
 
-                        Grid::make(2) // 👈 2 kolom
-                            ->schema([
+                //         Grid::make(2) // 👈 2 kolom
+                //             ->schema([
 
-                                Select::make('juz')
-                                    ->label('Juz')
-                                    ->options(
-                                        \App\Models\Halaman::query()
-                                            ->select('juz')
-                                            ->distinct()
-                                            ->orderBy('juz')
-                                            ->pluck('juz', 'juz') // key = value = juz
-                                            ->toArray()
-                                    )
-                                    ->reactive() // penting, supaya select halaman tahu nilai Juz berubah
-                                    ->afterStateUpdated(fn ($state, callable $set) => $set('halaman', null))
-                                    ->default(function ($record) {
-                                        $lastHalamanJuz = optional(optional($record->hafalan[0] ?? null)->halaman)->juz;
-                                        $lastHalamanNomor = optional(optional($record->hafalan[0] ?? null)->halaman)->nomor;
-                                        $selanjutnya = optional(optional($record->hafalan[0] ?? null))->selanjutnya;
-                                        if($selanjutnya == 'mengulang') {
-                                            return $lastHalamanJuz;
-                                        } 
-                                        if($selanjutnya == 'melanjutkan') {
-                                            if(($lastHalamanNomor - 1) % 20 == 0  && $lastHalamanNomor != 1) {
-                                                return $lastHalamanJuz ? $lastHalamanJuz + 1 : 1;
-                                            } else {
-                                                return $lastHalamanJuz ? $lastHalamanJuz : 1;
-                                            }
-                                        }                                        
-                                    }),
+                //                 Select::make('juz')
+                //                     ->label('Juz')
+                //                     ->options(
+                //                         \App\Models\Halaman::query()
+                //                             ->select('juz')
+                //                             ->distinct()
+                //                             ->orderBy('juz')
+                //                             ->pluck('juz', 'juz') // key = value = juz
+                //                             ->toArray()
+                //                     )
+                //                     ->reactive() // penting, supaya select halaman tahu nilai Juz berubah
+                //                     ->afterStateUpdated(fn ($state, callable $set) => $set('halaman', null))
+                //                     ->default(function ($record) {
+                //                         $lastHalamanJuz = optional(optional($record->hafalan[0] ?? null)->halaman)->juz;
+                //                         $lastHalamanNomor = optional(optional($record->hafalan[0] ?? null)->halaman)->nomor;
+                //                         $selanjutnya = optional(optional($record->hafalan[0] ?? null))->selanjutnya;
+                //                         if($selanjutnya == 'mengulang') {
+                //                             return $lastHalamanJuz;
+                //                         } 
+                //                         if($selanjutnya == 'melanjutkan') {
+                //                             if(($lastHalamanNomor - 1) % 20 == 0  && $lastHalamanNomor != 1) {
+                //                                 return $lastHalamanJuz ? $lastHalamanJuz + 1 : 1;
+                //                             } else {
+                //                                 return $lastHalamanJuz ? $lastHalamanJuz : 1;
+                //                             }
+                //                         }                                        
+                //                     }),
 
-                                Select::make('halaman')
-                                    ->label('Halaman')
-                                    ->required()
-                                    ->searchable()
-                                    ->options(function (callable $get) {
-                                        $juz = $get('juz');
-                                        if (!$juz) {
-                                            return [];
-                                        }
-                                        return \App\Models\Halaman::where('juz', $juz)
-                                    ->orderBy('nomor')
-                                    ->get(['id', 'nomor', 'nama'])
-                                    ->mapWithKeys(function ($h) {
-                                        return [$h->id => "{$h->nomor} - {$h->nama}"];
-                                    })
-                                    ->toArray();
-                                    })
-                                    ->default(function ($record) {
-                                        $lastHalamanId = optional(optional($record->hafalan[0] ?? null)->halaman)->id;
-                                        $selanjutnya = optional(optional($record->hafalan[0] ?? null))->selanjutnya;
+                //                 Select::make('halaman')
+                //                     ->label('Halaman')
+                //                     ->required()
+                //                     ->searchable()
+                //                     ->options(function (callable $get) {
+                //                         $juz = $get('juz');
+                //                         if (!$juz) {
+                //                             return [];
+                //                         }
+                //                         return \App\Models\Halaman::where('juz', $juz)
+                //                     ->orderBy('nomor')
+                //                     ->get(['id', 'nomor', 'nama'])
+                //                     ->mapWithKeys(function ($h) {
+                //                         return [$h->id => "{$h->nomor} - {$h->nama}"];
+                //                     })
+                //                     ->toArray();
+                //                     })
+                //                     ->default(function ($record) {
+                //                         $lastHalamanId = optional(optional($record->hafalan[0] ?? null)->halaman)->id;
+                //                         $selanjutnya = optional(optional($record->hafalan[0] ?? null))->selanjutnya;
 
-                                        if ($selanjutnya == 'mengulang') {
-                                            return $lastHalamanId;
-                                        } 
-                                        if ($selanjutnya == 'melanjutkan') {
-                                            return $lastHalamanId ? $lastHalamanId + 1 : 1;
-                                        }
-                                    }),
+                //                         if ($selanjutnya == 'mengulang') {
+                //                             return $lastHalamanId;
+                //                         } 
+                //                         if ($selanjutnya == 'melanjutkan') {
+                //                             return $lastHalamanId ? $lastHalamanId + 1 : 1;
+                //                         }
+                //                     }),
 
 
-                                TextInput::make('nilai')
-                                    ->label('Nilai Hafalan')
-                                    ->numeric()
-                                    ->required(),
+                //                 TextInput::make('nilai')
+                //                     ->label('Nilai Hafalan')
+                //                     ->numeric()
+                //                     ->required(),
 
-                                Select::make('status')
-                                    ->label('Status Hafalan')
-                                    ->options([
-                                        'baru' => 'Baru',
-                                        'murojaah' => 'Murojaah',
-                                    ])
-                                    ->required(),
+                //                 Select::make('status')
+                //                     ->label('Status Hafalan')
+                //                     ->options([
+                //                         'baru' => 'Baru',
+                //                         'murojaah' => 'Murojaah',
+                //                     ])
+                //                     ->required(),
 
-                                Select::make('selanjutnya')
-                                    ->label('Selanjutnya')
-                                    ->options([
-                                        'mengulang' => 'Mengulang',
-                                        'melanjutkan' => 'Melanjutkan',
-                                    ])
-                                    ->required(),
+                //                 Select::make('selanjutnya')
+                //                     ->label('Selanjutnya')
+                //                     ->options([
+                //                         'mengulang' => 'Mengulang',
+                //                         'melanjutkan' => 'Melanjutkan',
+                //                     ])
+                //                     ->required(),
 
                                 
-                            ]),
-                    ])
-                    ->action(function (array $data, $record) {
-                        \App\Models\Hafalan::create([
-                            'siswa_id' => $record->id,
-                            'halaman_id' => $data['halaman'],
-                            'nilai' => $data['nilai'],
-                            'status' => $data['status'],
-                            'selanjutnya' => $data['selanjutnya'],
-                            'user_id' => Auth::user()->id,
-                            'pertemuan' => now(),
-                        ]);
+                //             ]),
+                //     ])
+                //     ->action(function (array $data, $record) {
+                //         \App\Models\Hafalan::create([
+                //             'siswa_id' => $record->id,
+                //             'halaman_id' => $data['halaman'],
+                //             'nilai' => $data['nilai'],
+                //             'status' => $data['status'],
+                //             'selanjutnya' => $data['selanjutnya'],
+                //             'user_id' => Auth::user()->id,
+                //             'pertemuan' => now(),
+                //         ]);
 
-                        Notification::make()
-                            ->title('Hafalan disimpan')
-                            ->success()
-                            ->send();
-                    })
-                    ->modalContent(function ($record) {
-                        if($record->hafalan->count() !== 0) {
-                            if($record->hafalan[0]->halaman->juz == 30) {
-                                if($record->hafalan[0]->selanjutnya == 'mengulang') {
-                                    $number = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '1');
-                                } else {
-                                    $number = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '1') - 1;
+                //         Notification::make()
+                //             ->title('Hafalan disimpan')
+                //             ->success()
+                //             ->send();
+                //     })
+                //     ->modalContent(function ($record) {
+                //         if($record->hafalan->count() !== 0) {
+                //             if($record->hafalan[0]->halaman->juz == 30) {
+                //                 if($record->hafalan[0]->selanjutnya == 'mengulang') {
+                //                     $number = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '1');
+                //                 } else {
+                //                     $number = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '1') - 1;
                                     
-                                }
+                //                 }
 
-                                $response = Http::get("https://api.alquran.cloud/v1/surah/{$number}");
-                                if ($number == 77) {
-                                    $response = Http::get("https://api.alquran.cloud/v1/page/1/quran-uthmani");
-                                }
-                                if ($response->successful()) {
-                                    $data = $response->json('data.ayahs');
-                                    return view('filament.components.quran-slideover', [
-                                        'id_siswa' => $record->id,
-                                        'ayahs' => $data,
-                                        'page' => $number,
-                                        'juz' => $record->hafalan[0]->halaman->juz,
-                                        'halaman' => Halaman::all(),
-                                    ]);
-                                }
+                //                 $response = Http::get("https://api.alquran.cloud/v1/surah/{$number}");
+                //                 if ($number == 77) {
+                //                     $response = Http::get("https://api.alquran.cloud/v1/page/1/quran-uthmani");
+                //                 }
+                //                 if ($response->successful()) {
+                //                     $data = $response->json('data.ayahs');
+                //                     return view('filament.components.quran-slideover', [
+                //                         'id_siswa' => $record->id,
+                //                         'ayahs' => $data,
+                //                         'page' => $number,
+                //                         'juz' => $record->hafalan[0]->halaman->juz,
+                //                         'halaman' => Halaman::all(),
+                //                     ]);
+                //                 }
 
-                            } else {
-                                if($record->hafalan[0]->selanjutnya == 'mengulang') {
-                                    $page = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '1');
-                                } else {
-                                    $page = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '1') + 1;
-                                }
-                                $response = Http::get("https://api.alquran.cloud/v1/page/{$page}/quran-uthmani");
+                //             } else {
+                //                 if($record->hafalan[0]->selanjutnya == 'mengulang') {
+                //                     $page = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '1');
+                //                 } else {
+                //                     $page = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '1') + 1;
+                //                 }
+                //                 $response = Http::get("https://api.alquran.cloud/v1/page/{$page}/quran-uthmani");
                                 
-                                if ($response->successful()) {
-                                    $data = $response->json('data.ayahs');
-                                    return view('filament.components.quran-slideover', [
-                                        'id_siswa' => $record->id,
-                                        'ayahs' => $data,
-                                        'page' => $page,
-                                        'juz' => $record->hafalan[0]->halaman->juz,
-                                        'halaman' => Halaman::all(),
-                                    ]);
-                                }
-                            }
-                        }
+                //                 if ($response->successful()) {
+                //                     $data = $response->json('data.ayahs');
+                //                     return view('filament.components.quran-slideover', [
+                //                         'id_siswa' => $record->id,
+                //                         'ayahs' => $data,
+                //                         'page' => $page,
+                //                         'juz' => $record->hafalan[0]->halaman->juz,
+                //                         'halaman' => Halaman::all(),
+                //                     ]);
+                //                 }
+                //             }
+                //         }
                         
-                        $number = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '114');
-                        $response = Http::get("https://api.alquran.cloud/v1/surah/{$number}");
-                        if ($response->successful()) {
-                            $data = $response->json('data.ayahs');
-                            return view('filament.components.quran-slideover', [
-                                'id_siswa' => $record->id,
-                                'ayahs' => $data,
-                                'page' => $number,
-                                'juz' => 30,
-                            ]);
-                        }
+                //         $number = (int) preg_replace('/\D/', '', $record->hafalan[0]->halaman->nomor ?? '114');
+                //         $response = Http::get("https://api.alquran.cloud/v1/surah/{$number}");
+                //         if ($response->successful()) {
+                //             $data = $response->json('data.ayahs');
+                //             return view('filament.components.quran-slideover', [
+                //                 'id_siswa' => $record->id,
+                //                 'ayahs' => $data,
+                //                 'page' => $number,
+                //                 'juz' => 30,
+                //             ]);
+                //         }
                         
                     
-                }),
+                // }),
 
             ])
             ->recordUrl(fn (Siswa $record): string => route('filament.admin.resources.hafalans.detail-hafalan-siswa', ['record' => $record->id]));
